@@ -3,6 +3,9 @@
 # Required by package managers to download dependencies.
 # Should typically NOT be modified or committed. Reinstall using 'npm install' or 'yarn'.
 node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
 # Logs #
 ########
