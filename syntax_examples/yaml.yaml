@@ -1,0 +1,17 @@
+# Simple YAML example for testing
+toolName: CodeSqueezer
+version: 0.2.0 # Planning version
+purpose: Testing language detection
+
+# List of languages to test support for
+supportedLanguages:
+  - JavaScript
+  - TypeScript
+  - Python # Needs a python minifier
+  - Java   # Needs a java tool
+
+# General configuration
+enabled: true
+settings:
+  defaultMinify: false
+  target: clipboard # Default output target

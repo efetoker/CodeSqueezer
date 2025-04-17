@@ -1,0 +1,16 @@
+{
+    "toolName": "CodeSqueezer",
+    "version": "0.2.0",
+    "purpose": "Testing language detection",
+    "supportedLanguages": [
+      "JavaScript",
+      "TypeScript",
+      "Python",
+      "Java"
+    ],
+    "enabled": true,
+    "settings": {
+      "defaultMinify": false,
+      "target": "clipboard"
+    }
+  }

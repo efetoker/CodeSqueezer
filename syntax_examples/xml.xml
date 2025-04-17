@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration tool="CodeSqueezer">
+    <version>0.2.0</version> <purpose>Testing language detection</purpose>
+    <supportedLanguages>
+        <language id="js">JavaScript</language>
+        <language id="ts">TypeScript</language>
+        <language id="py">Python</language>
+        <language id="java">Java</language>
+    </supportedLanguages>
+    <settings active="true">
+        <defaultMinify enabled="false"/>
+        <output target="clipboard"/>
+    </settings>
+</configuration>

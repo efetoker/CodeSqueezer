@@ -1,0 +1,12 @@
+/* Simple CSS Example */
+body {
+    font-family: Arial, sans-serif; /* Set default font */
+    color: #333333; /* Dark grey text color */
+    line-height: 1.6;
+}
+
+h1 {
+    color: steelblue; /* Heading color */
+}
+
+/* End of styles */
