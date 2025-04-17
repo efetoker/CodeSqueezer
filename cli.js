@@ -56,19 +56,28 @@ async function main() {
   const useMinify = argv.minify;
 
   try {
-    console.log(`Reading file: ${filePath}...`);
     const fileContent = await fs.readFile(filePath, "utf8");
 
-    console.log(
-      `Processing code ${
-        useMinify ? "with full minification" : "for safe flattening"
-      }...`
-    );
+    const originalLines = fileContent.split("\n").length;
+    const originalChars = fileContent.length;
+
     const processedCode = await transformCode(fileContent, useMinify);
 
+    const processedLines = processedCode.split("\n").length;
+    const processedChars = processedCode.length;
+
     await clipboard.write(processedCode);
-    console.log("✅ Processed code copied to clipboard!");
-    console.log(`🔢 (${processedCode.length} characters)`);
+    
+    const percentageGain = ((originalChars - processedChars) / originalChars * 100).toFixed(2);
+
+    console.log(`\n————————————————————————————————————————————`);
+    console.log("✅ Processed code copied to clipboard!\n");
+    console.log(`— Before : ${originalChars} characters (${originalLines} lines)`);
+    console.log(`— After  : ${processedChars} characters (${percentageGain}% reduction)`);
+    console.log("\nThanks for using CodeSqueezer!");
+    console.log("Context window, here we come! 🔥");
+    console.log(`————————————————————————————————————————————\n`);
+    
   } catch (error) {
     if (error.code === "ENOENT") {
       console.error(`Error: File not found at path: ${filePath}`);
