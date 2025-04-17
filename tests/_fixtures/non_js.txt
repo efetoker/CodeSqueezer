@@ -1,0 +1,2 @@
+This is not a JavaScript file.
+It should not be processed by -c.
