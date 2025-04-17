@@ -1,4 +1,4 @@
-import path from "path"; // Needed for basename in file modify logs if re-added
+import path from "path";
 
 const SEPARATOR = "————————————————————————————————————————————";
 
@@ -46,5 +46,21 @@ export function logTreeCopied(lineCount) {
   logSuccess("Directory tree copied to clipboard!");
   logInfo(`   (${lineCount} lines copied)`);
   logInfo("\nThanks for using CodeSqueezer!");
+  logEndSeparator();
+}
+
+export function logFileModified(filePath, originalChars, processedChars) {
+  const reduction = originalChars - processedChars;
+  logSeparator();
+  logSuccess(`Console logs removed from file: ${path.basename(filePath)}`);
+  logInfo(`   Removed ${reduction} characters.`);
+  logInfo(`   File modified successfully.`);
+  logEndSeparator();
+}
+
+export function logFileUnchanged(filePath) {
+  logSeparator();
+  logInfo(`ℹ️ No console logs found to remove in: ${path.basename(filePath)}`);
+  logInfo(`   File remains unchanged.`);
   logEndSeparator();
 }
