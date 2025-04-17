@@ -2,6 +2,7 @@
 
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
+import process from "process"; // Ensure process is imported if using process.stdout etc.
 import { handleProcessFile } from "./commands/processFile.js";
 import { handleDisplayTree } from "./commands/displayTreeCmd.js";
 
@@ -13,14 +14,21 @@ async function run() {
       (yargs) => {
         yargs
           .positional("filepath", {
-            describe: "Path to the code file to process",
+            describe: "Path to the code file to process or modify",
             type: "string",
             normalize: true,
           })
           .option("m", {
             alias: "minify",
             type: "boolean",
-            description: "Apply full minification",
+            description: "Minify and copy code to clipboard (ignores -c)",
+            default: false,
+          })
+          .option("c", {
+            alias: "remove-consoles",
+            type: "boolean",
+            description:
+              "Remove console.* statements IN PLACE from the file (JS/TS only, no minification, no clipboard)",
             default: false,
           });
       },
@@ -44,7 +52,9 @@ async function run() {
         await handleDisplayTree(argv);
       }
     )
-    .usage("Usage:\n  $0 <filepath> [-m]\n  $0 tree [dirpath]")
+    .usage(
+      "Usage:\n  $0 <filepath> [-m]\n  $0 <filepath> -c\n  $0 tree [dirpath]"
+    )
     .help("h")
     .alias("h", "help")
     .alias("v", "version")
@@ -54,7 +64,6 @@ async function run() {
 }
 
 run().catch((error) => {
-  // Optional: Catch any completely unexpected errors during setup/run
   console.error("A critical error occurred in the CLI setup:", error);
   process.exit(1);
 });
