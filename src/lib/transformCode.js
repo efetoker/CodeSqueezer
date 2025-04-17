@@ -1,12 +1,25 @@
-import * as Terser from "terser";
+// src/lib/transformCode.js
 
-export async function transformCode(code, isMinifyEnabled) {
+import * as Terser from "terser";
+import path from "path";
+
+export async function transformCode(
+  code,
+  isMinifyEnabled,
+  filename = "input.js"
+) {
+  // If minification is NOT requested, return the original code immediately.
+  if (!isMinifyEnabled) {
+    return code;
+  }
+
+  // Only proceed with Terser if isMinifyEnabled is true
   try {
     const options = {
-      compress: isMinifyEnabled ? {} : false,
-      mangle: isMinifyEnabled ? true : false,
+      compress: {}, // Enable default compression
+      mangle: true, // Enable default mangle
       format: {
-        comments: false,
+        comments: false, // Remove comments
       },
       sourceMap: false,
     };
@@ -16,7 +29,11 @@ export async function transformCode(code, isMinifyEnabled) {
     }
     return result.code;
   } catch (error) {
-    console.error("Error during code transformation:", error);
-    throw error;
+    const baseName = path.basename(filename);
+    console.error(
+      `Error during Terser transformation (${baseName}):`,
+      error.message || error
+    );
+    throw new Error(`Minification failed for ${baseName}.`);
   }
 }
