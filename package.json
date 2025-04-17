@@ -35,5 +35,11 @@
     "clipboardy": "^4.0.0",
     "terser": "^5.39.0",
     "yargs": "^17.7.2"
-  }
+  },
+  "files": [
+    "cli.js",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ]
 }
