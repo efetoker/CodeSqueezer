@@ -33,6 +33,7 @@
   "homepage": "https://github.com/efetoker/CodeSqueezer#readme",
   "dependencies": {
     "clipboardy": "^4.0.0",
+    "micromatch": "^4.0.8",
     "terser": "^5.39.0",
     "yargs": "^17.7.2"
   },
