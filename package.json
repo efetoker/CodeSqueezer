@@ -4,7 +4,7 @@
   "description": "Prepares code files for AI chatbot context limits by flattening them.",
   "main": "index.js",
   "bin": {
-    "codesqueezer": "./cli.js"
+    "codesqueezer": "./src/cli.js"
   },
   "type": "module",
   "keywords": [
@@ -41,5 +41,9 @@
     "README.md",
     "LICENSE",
     "package.json"
-  ]
+  ],
+  "devDependencies": {
+    "@babel/core": "^7.26.10",
+    "babel-plugin-transform-remove-console": "^6.9.4"
+  }
 }
