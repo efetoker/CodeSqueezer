@@ -1,0 +1,39 @@
+{
+  "name": "codesqueezer",
+  "version": "0.0.1",
+  "description": "Prepares code files for AI chatbot context limits by flattening them.",
+  "main": "index.js",
+  "bin": {
+    "codesqueezer": "./cli.js"
+  },
+  "type": "module",
+  "keywords": [
+    "ai",
+    "chatbot",
+    "llm",
+    "context",
+    "code",
+    "minify",
+    "flatten",
+    "developer",
+    "tool"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/efetoker/CodeSqueezer.git"
+  },
+  "author": "Efe TOKER <efetoker@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/efetoker/CodeSqueezer/issues"
+  },
+  "homepage": "https://github.com/efetoker/CodeSqueezer#readme",
+  "dependencies": {
+    "clipboardy": "^4.0.0",
+    "terser": "^5.39.0",
+    "yargs": "^17.7.2"
+  }
+}
