@@ -6,6 +6,7 @@ import process from "process"; // Ensure process is imported if using process.st
 import { handleProcessFile } from "./commands/processFile.js";
 import { handleDisplayTree } from "./commands/displayTreeCmd.js";
 
+
 async function run() {
   yargs(hideBin(process.argv))
     .command(

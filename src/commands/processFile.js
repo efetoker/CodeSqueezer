@@ -9,7 +9,87 @@ import {
   logFileProcessed,
   logFileModified,
   logFileUnchanged,
+  logDirectoryProcessed,
 } from "../utils/logger.js";
+
+// Helper function to process a single file
+async function processSingleFile(filePath, useMinify, removeConsolesFlag) {
+  const fileContent = await fs.readFile(filePath, "utf8");
+  const originalLines = fileContent.split("\n").length;
+  const originalChars = fileContent.length;
+
+  if (removeConsolesFlag) {
+    const processedCode = await removeConsolesPrecise(fileContent, filePath);
+    if (processedCode === fileContent) {
+      logFileUnchanged(filePath);
+    } else {
+      await fs.writeFile(filePath, processedCode, "utf8");
+      const processedChars = processedCode.length;
+      logFileModified(filePath, originalChars, processedChars);
+    }
+  } else {
+    const processedCode = await transformCode(fileContent, useMinify, filePath);
+    const processedChars = processedCode.length;
+    return {
+      code: processedCode,
+      originalChars,
+      originalLines,
+      processedChars,
+    };
+  }
+  return null;
+}
+
+// Helper function to process a directory recursively
+async function processDirectory(dirPath, useMinify, removeConsolesFlag) {
+  const entries = await fs.readdir(dirPath, { withFileTypes: true });
+  let allProcessedCode = [];
+  let totalOriginalChars = 0;
+  let totalOriginalLines = 0;
+  let totalProcessedChars = 0;
+
+  for (const entry of entries) {
+    const fullPath = path.join(dirPath, entry.name);
+    
+    // Skip node_modules, .git, and other common directories
+    if (entry.isDirectory() && 
+        (entry.name === 'node_modules' || 
+         entry.name === '.git' || 
+         entry.name === 'dist' || 
+         entry.name === 'build')) {
+      continue;
+    }
+
+    if (entry.isDirectory()) {
+      const result = await processDirectory(fullPath, useMinify, removeConsolesFlag);
+      if (result) {
+        allProcessedCode.push(...result.processedCode);
+        totalOriginalChars += result.totalOriginalChars;
+        totalOriginalLines += result.totalOriginalLines;
+        totalProcessedChars += result.totalProcessedChars;
+      }
+    } else if (entry.isFile()) {
+      const ext = path.extname(entry.name).toLowerCase();
+      // Only process JavaScript and TypeScript files
+      if (['.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs'].includes(ext)) {
+        const result = await processSingleFile(fullPath, useMinify, removeConsolesFlag);
+        if (result) {
+          allProcessedCode.push(result.code);
+          totalOriginalChars += result.originalChars;
+          totalOriginalLines += result.originalLines;
+          totalProcessedChars += result.processedChars;
+        }
+      }
+    }
+  }
+
+  return {
+    processedCode: allProcessedCode,
+    totalOriginalChars,
+    totalOriginalLines,
+    totalProcessedChars,
+  };
+}
 
 export async function handleProcessFile(argv) {
   const filePath = argv.filepath;
@@ -22,86 +102,62 @@ export async function handleProcessFile(argv) {
       stats = await fs.stat(filePath);
     } catch (e) {
       if (e.code === "ENOENT") {
-        logError(`File not found at path: ${filePath}`);
+        logError(`File or directory not found at path: ${filePath}`);
         process.exit(1);
       }
       throw e;
     }
-    if (stats.isDirectory()) {
-      logError(`The filepath provided must be a file, not a directory.`);
-      if (!removeConsolesFlag) {
-        console.error(`       Did you mean to use the 'tree' command?`);
-      }
-      process.exit(1);
-    }
 
     if (removeConsolesFlag) {
-      // --- Action: Remove Consoles In-Place (Precise - TS API) ---
       if (useMinify) {
         logError(
           "The -m (minify) flag cannot be used with -c (remove-consoles). Use one or the other."
         );
         process.exit(1);
       }
+    }
 
-      const ext = path.extname(filePath).toLowerCase();
-      const allowedExts = [".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs"];
-      if (!allowedExts.includes(ext)) {
-        logError(
-          `--remove-consoles flag is only supported for JavaScript/TypeScript files (found ${ext}).`
+    if (stats.isDirectory()) {
+      const result = await processDirectory(filePath, useMinify, removeConsolesFlag);
+      if (result && !removeConsolesFlag) {
+        const combinedCode = result.processedCode.join('\n\n');
+        await clipboard.write(combinedCode);
+        logDirectoryProcessed(
+          result.totalOriginalChars,
+          result.totalOriginalLines,
+          result.totalProcessedChars
         );
-        process.exit(1);
-      }
-
-      const fileContent = await fs.readFile(filePath, "utf8");
-      const originalChars = fileContent.length;
-
-      // Use the TS API based precise function
-      const processedCode = await removeConsolesPrecise(fileContent, filePath);
-
-      if (processedCode === fileContent) {
-        logFileUnchanged(filePath);
-      } else {
-        await fs.writeFile(filePath, processedCode, "utf8");
-        const processedChars = processedCode.length;
-        logFileModified(filePath, originalChars, processedChars);
       }
     } else {
-      // --- Default Action: Process (Minify if -m) and Copy to Clipboard ---
-      const fileContent = await fs.readFile(filePath, "utf8");
-      const originalLines = fileContent.split("\n").length;
-      const originalChars = fileContent.length;
-
-      const processedCode = await transformCode(fileContent, useMinify); // Uses Terser
-      const processedChars = processedCode.length;
-
-      await clipboard.write(processedCode);
-      logFileProcessed(originalChars, originalLines, processedChars);
+      const result = await processSingleFile(filePath, useMinify, removeConsolesFlag);
+      if (result && !removeConsolesFlag) {
+        await clipboard.write(result.code);
+        logFileProcessed(
+          result.originalChars,
+          result.originalLines,
+          result.processedChars
+        );
+      }
     }
   } catch (error) {
-    // --- Revised Error Handling ---
     const baseName = path.basename(filePath || "input");
 
     if (error.code === "ENOENT") {
-      logError(`File not found: ${filePath}`);
+      logError(`File or directory not found: ${filePath}`);
     }
-    // Only check for Terser error if we were NOT in remove-consoles mode
     else if (!removeConsolesFlag && error instanceof Terser.TSError) {
       logError(
         `JS Minification Error in ${baseName}: ${error.message} (line: ${error.line}, col: ${error.col})`
       );
     }
-    // Check if it's the generic error re-thrown from our precise removal function
     else if (
       removeConsolesFlag &&
       error.message?.includes("Console removal failed")
     ) {
-      // Specific error was already logged inside removeConsolesPrecise
       logError(
         `Console removal operation failed for ${baseName}. See details above.`
       );
     }
-    // Generic fallback
     else {
       logError(
         `An unexpected error occurred processing ${baseName}: ${
@@ -109,6 +165,6 @@ export async function handleProcessFile(argv) {
         }`
       );
     }
-    process.exit(1); // Exit after logging
+    process.exit(1);
   }
 }
