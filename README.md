@@ -2,78 +2,171 @@
 
 [![NPM Version](https://img.shields.io/npm/v/codesqueezer.svg?style=flat-square)](https://www.npmjs.com/package/codesqueezer) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
-A command-line tool to process code files, making them more compact and easier to paste into AI chatbots with context limits.
+A powerful command-line tool that prepares your code for AI chatbot interactions by making it more compact and context-friendly. Perfect for developers who frequently share code with AI assistants.
 
-## Problem Solved
+## 🚀 Features
 
-Large language models (LLMs) and AI assistants are incredibly helpful for developers, but they often have strict context window limits (character or token counts). Pasting large code files, even single files, can exceed these limits. Manually editing code to fit is time-consuming and risks breaking the code.
+- **Smart Code Processing**
+  - Removes comments and unnecessary whitespace
+  - Preserves code functionality
+  - Maintains file structure and readability
+  - Adds file path comments for context
 
-`CodeSqueezer` prepares your code for these AI interactions by significantly reducing its character count *without* altering its functionality, then copies the result directly to your clipboard.
+- **TypeScript & JavaScript Support**
+  - Handles both `.js` and `.ts` files
+  - Preserves TypeScript syntax and types
+  - Smart minification for both languages
+  - Supports modern JavaScript/TypeScript features
 
-## Features (Current)
+- **Directory Processing**
+  - Process entire directories recursively
+  - Combines multiple files with proper separation
+  - Skips common directories (node_modules, .git, etc.)
+  - Maintains file hierarchy in output
 
-* **Processes JavaScript Files:** Takes a path to a `.js` file as input.
-* **Safe Code Transformation:** Uses the robust [Terser](https://terser.org/) library to parse and transform JavaScript code safely.
-    * Removes all comments (`//` and `/* ... */`).
-    * Eliminates unnecessary whitespace (newlines, extra spaces, indentation).
-* **Optional Full Minification:** Provides a flag (`-m`) to enable Terser's full minification capabilities, including:
-    * Code compression (optimizing syntax, removing dead code).
-    * Variable renaming/mangling for maximum size reduction.
-* **Functional Output:** The resulting code remains syntactically correct and functional JavaScript.
-* **Clipboard Integration:** Automatically copies the processed, compact code to your system clipboard, ready to be pasted.
-* **Simple CLI:** Easy-to-use command-line interface.
+- **Multiple Processing Modes**
+  - Basic mode: Simple code flattening
+  - Minification mode: Full code compression
+  - Console removal mode: Remove console statements
+  - Directory tree display
 
-## Installation
+## 📦 Installation
 
-You can install `CodeSqueezer` globally to use it anywhere:
+Install globally to use anywhere:
 
 ```bash
 npm install -g codesqueezer
-````
+```
 
-*(Replace `codesqueezer` with your actual package name if you chose a different one)*
-
-Alternatively, you can use it directly without installing using `npx`:
+Or use directly with npx:
 
 ```bash
 npx codesqueezer <filepath> [options]
 ```
 
-## Usage
+## 💻 Usage
 
-Run the tool by providing the path to the JavaScript file you want to process.
+### Basic Usage
 
-**Basic Usage (Safe Flattening & Comment Removal):**
-
-```bash
-codesqueezer path/to/your/code.js
-```
-
-This will process the code, remove comments/whitespace, and copy the result to your clipboard. Variable and function names remain unchanged.
-
-**Full Minification (Maximum Size Reduction):**
+Process a single file:
 
 ```bash
-codesqueezer path/to/your/code.js -m
+# Process a JavaScript file
+codesqueezer src/example.js
+
+# Process a TypeScript file
+codesqueezer src/example.ts
 ```
 
-or
+Process an entire directory:
 
 ```bash
-codesqueezer path/to/your/code.js --minify
+# Process all files in a directory
+codesqueezer src/
+
+# Process a specific subdirectory
+codesqueezer src/components/
 ```
 
-This performs all the basic steps *plus* applies aggressive compression and renames variables/functions to be as short as possible. This yields the smallest possible output but might be slightly less readable for the AI if it relies heavily on original naming conventions.
+### Minification Mode
 
-## Options
+Enable full minification with the `-m` flag:
 
-  * `<filepath>`: (Required) The path to the JavaScript file to process.
-  * `-m`, `--minify`: (Optional) Flag to enable full minification (compression and variable name mangling).
+```bash
+# Minify a single file
+codesqueezer src/example.js -m
+codesqueezer src/example.ts -m
 
-## Limitations
+# Minify an entire directory
+codesqueezer src/ -m
+```
 
-  * **JavaScript Only:** Currently, `CodeSqueezer` only understands and processes JavaScript files correctly due to its reliance on Terser. Attempting to process other languages will likely result in errors or incorrect output.
+### Console Removal Mode
 
-## License
+Remove console statements from files:
 
-This project is licensed under the [MIT License](https://www.google.com/search?q=LICENSE).
+```bash
+# Remove consoles from a single file
+codesqueezer src/example.js -c
+
+# Remove consoles from an entire directory
+codesqueezer src/ -c
+```
+
+### Directory Tree Display
+
+View directory structure:
+
+```bash
+# Show current directory structure
+codesqueezer tree
+
+# Show specific directory structure
+codesqueezer tree src/
+```
+
+## 🔧 Options
+
+| Option | Alias | Description |
+|--------|-------|-------------|
+| `-m` | `--minify` | Enable full minification |
+| `-c` | `--remove-consoles` | Remove console statements |
+| `tree [dirpath]` | - | Display directory structure |
+
+## 📝 Output Format
+
+### Single File Output
+```typescript
+// src/components/Button.tsx
+export const Button = ({ children }) => <button>{children}</button>;
+```
+
+### Directory Output
+```typescript
+// src/components/Button.tsx
+export const Button = ({ children }) => <button>{children}</button>;
+
+// src/components/Input.tsx
+export const Input = ({ value }) => <input value={value} />;
+
+// src/utils/helpers.ts
+export const formatDate = (date) => date.toLocaleDateString();
+```
+
+## ⚙️ Configuration
+
+The tool automatically:
+- Skips `node_modules`, `.git`, `dist`, and `build` directories
+- Processes `.js`, `.jsx`, `.ts`, `.tsx`, `.mjs`, and `.cjs` files
+- Preserves TypeScript syntax and types
+- Maintains file hierarchy in output
+
+## 🛠️ Technical Details
+
+- Uses `swc` for TypeScript processing
+- Uses `terser` for JavaScript minification
+- Preserves TypeScript syntax and types
+- Handles modern JavaScript/TypeScript features
+- Supports recursive directory processing
+
+## 📊 Statistics
+
+The tool provides detailed statistics:
+- Original character count
+- Processed character count
+- Percentage reduction
+- Line count information
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [swc](https://swc.rs/) - Speedy Web Compiler
+- [terser](https://terser.org/) - JavaScript minifier
+- [clipboardy](https://github.com/sindresorhus/clipboardy) - Cross-platform clipboard handling
